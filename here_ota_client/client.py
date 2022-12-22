@@ -128,6 +128,15 @@ class HereOtaClient(Session):
         self.__password = password
         self.authenticate()
 
+    @property
+    def current_env(self):
+        return self.__env
+
+    @property
+    def list_envs(self):
+        return self.__envs
+
+
     def authenticate(self) -> None:
         """
         Collect the X-CSRF-Token from here OTA then use it to authenticate with
@@ -247,7 +256,7 @@ class HereOtaClient(Session):
 
         # get request to devices endpoint with specified device_name
         r1 = self.get(
-            here_ota_search_device_by_device_name + device_name + "&limit=1&offset=0"
+            here_ota_search_device_by_device_name + device_name + "&limit=24&offset=0"
         )
         return r1.json()
 
@@ -349,7 +358,7 @@ class HereOtaClient(Session):
             raise AuthenticationError("Unable to ping endpoint")
         return r.json()
 
-    def find_group_by_name(self: Self, name: str, limit: int = 1000) -> str:
+    def find_group_id_by_name(self: Self, name: str, limit: int = 1000) -> str:
         data = self.get_groups()['values']
         for group_data in data:
             group_name = group_data["groupName"].strip()
