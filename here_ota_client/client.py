@@ -249,7 +249,6 @@ class HereOtaClient(Session):
         returns details on a device from the search device by device_name endpoint
         :param device_name: device_name as a string
         :param env: if provided env will be changed before request is made
-        :param hashed: if provided will pass hashed value to query
         :return: dictionary containing the device data
         """
         if env: self.change_env(env)
@@ -276,9 +275,8 @@ class HereOtaClient(Session):
     def find_and_switch_to_env_for_device_name(self: Self, device_name: str) -> bool:
         """
         This method is used to locate the env for a provided device_name. returns the env of the device_name and a bool
-        True of False if the device_name was found via hash
+        True of False if the device_name is found
         :param device_name: string representation of device_name
-        :param collection: bool, if True will not raise error when device_name is not found. used when defining envs for device_names
         :return: tuple or string
         """
         for env in self.__envs:
@@ -286,14 +284,13 @@ class HereOtaClient(Session):
             if response:
                 self.__env = env
                 return True
-        raise DeviceNotFoundError(f"device_name not found in any of: {self.envs} by device_name or hashed value")
+        raise DeviceNotFoundError(f"device_name not found in any of: {self.__envs} by device_name")
 
     def get_device_history(self: Self, device_name: str, limit: int = 10) -> dict:
         """
         returns the device history for a specified device_name
         :param device_name: device_name number as a string
         :param env: if provided will change to this env before request
-        :param hashed: if provided will pass hashed value to query
         :param limit: amount of campaign to return default 10
         :return: campaign data in the form of a DataFrame or an empty list if there is no data
         """
@@ -316,7 +313,6 @@ class HereOtaClient(Session):
         an empty list is returned if no pending assignments exist
         :param device_name: the device_name as a string
         :param env: if provided will change to this env before request
-        :param hashed: if provided will pass hashed value to query
         :return: empty list or pandas DataFrame
         """
 
