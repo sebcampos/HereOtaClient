@@ -393,7 +393,7 @@ class HereOtaClient(Session):
         r = self.add_device_to_group_by_uuid(group_id, device_id)
         return r
 
-    def launch_campaign(self: Self, name: str, group_name: str, campaign_name: str) -> Response:
+    def launch_campaign_on_group_by_name(self: Self, name: str, group_name: str, campaign_name: str) -> Response:
         group_uuid = self.find_group_by_name(group_name)
         update_id = self.find_here_ota_campaign_id_by_name(campaign_name)
         assert update_id is not None
@@ -403,7 +403,7 @@ class HereOtaClient(Session):
         }
         self.headers.update(header)
         r = self.post(
-            "https://connect.ota.here.com/api/v2/campaigns",
+            here_ota_campaigns[:-1], # pos needs to be done on endpoint without slash
             json= \
                 {
                     "name": name,
