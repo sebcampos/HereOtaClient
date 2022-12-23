@@ -343,19 +343,19 @@ class HereOtaClient(Session):
         logger.debug(r.content.decode())
         return r.json()
 
-    def get_groups(self: Self, limit: int = 1000) -> dict:
+    def get_groups(self: Self, limit: int = 1000, offset=0) -> dict:
         """
         this method gets the device first 1000 groups in the current env
         :param limit: integer of how many records to return default 1000
         :return: python dictionary of results
         """
-        r = self.get(build_get_here_ota_groups_url(limit=limit))
+        r = self.get(build_get_here_ota_groups_url(limit=limit, offset=offset))
         if r.status_code != 200:
             raise AuthenticationError("Unable to ping endpoint")
         return r.json()
 
-    def find_group_id_by_name(self: Self, name: str, limit: int = 1000) -> str:
-        data = self.get_groups()['values']
+    def find_group_id_by_name(self: Self, name: str, limit: int = 1000, offset=0) -> str:
+        data = self.get_groups(limit=limit, offset=offset)['values']
         for group_data in data:
             group_name = group_data["groupName"].strip()
             if name == group_name:
