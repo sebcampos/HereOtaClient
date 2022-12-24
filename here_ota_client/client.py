@@ -279,11 +279,17 @@ class HereOtaClient(Session):
         :param device_name: string representation of device_name
         :return: tuple or string
         """
+        results = []
         for env in self.__envs:
             response = self.get_device_info(device_name, env=env)['values']
             if response:
-                self.__env = env
-                return True
+                results.append(env)
+        if len(results) > 1:
+            raise EnvironmentError(f"device: {device_name} exists in multiple envs {results}")
+        elif len(results) == 1:
+            env = results[0]
+            self.change_env(env)
+            return env
         raise DeviceNotFoundError(f"device_name not found in any of: {self.__envs} by device_name")
 
     def get_device_history(self: Self, device_name: str, limit: int = 10) -> dict:
@@ -422,6 +428,18 @@ class HereOtaClient(Session):
             here_ota_campaigns + correlation_id
         )
         return r1
+
+    def find_group_by_name(self: Self, name: str, limit: int = 1000, offset=0) -> str:
+        data = self.get_groups(limit=limit, offset=offset)['values']
+        for group_data in data:
+            group_name = group_data["groupName"].strip()
+            if name in group_name:
+                logger.info(group_name)
+                found = input("Select this group? (Y/N): ").lower()
+                if found == "y":
+                    return group_data["id"]
+        raise GroupNotFoundError(f"No group containing {name} found in first {limit} groups")
+
 
     def get_device_names_in_group(self, group_name):
         group_id = self.find_group_by_name(group_name)
